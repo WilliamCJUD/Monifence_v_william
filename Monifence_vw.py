@@ -1,14 +1,28 @@
 import pygame,sys
 import time
-# from serie_moni import envioserie as e_s
 from pygame.locals import *
+from ENVIO_ALEATORIO import *
+from socket import *
 
+import threading
+from threading import *
+#########################################################
+#############CONFIGURACION TCP/IP########################
+HOST = ''
+PORT = 8050
+BUFSIZ = 1024
+ADDR = (HOST, PORT)
+
+
+#########################################################
 NEGRO = (0, 0, 0)
 GRIS = (35, 36, 37 )
 BLANCO = (222, 224, 200)
 VERDE=(41, 211, 66)
+VERDE_CLARO=(41, 180, 66)
 ROJO=(247, 55, 55 )
-AZUL=(10, 139, 191)
+AZUL=(10, 120, 191)
+AMARILLO=( 247,191,0)
 
 ############################    ASIGNAR IMAGENES     #####################
 mapa= pygame.image.load('images/reserva.jpg')
@@ -34,12 +48,6 @@ rect_stats_bu = stats_bu.get_rect()
 rect_zona1_bu = zona_bu.get_rect()
 rect_zona2_bu = zona_bu.get_rect()
 rect_zona3_bu = zona_bu.get_rect()
-rect_zona4_bu = zona_bu.get_rect()
-rect_zona5_bu = zona_bu.get_rect()
-rect_zona6_bu = zona_bu.get_rect()
-rect_zona7_bu = zona_bu.get_rect()
-rect_zona8_bu = zona_bu.get_rect()
-rect_zona9_bu = zona_bu.get_rect()
 rect_batt_f = batt_f.get_rect()
 rect_ener_on = zona_bu.get_rect()
 rect_armed = armed.get_rect()
@@ -54,7 +62,7 @@ font_b = pygame.font.SysFont("Arial", 15)
 font_c = pygame.font.SysFont("Arial", 20)
 font_s = pygame.font.SysFont("Arial Narrow", 18)
 
-dimensiones = [1024, 600]
+dimensiones = [820, 600]
 pantalla = pygame.display.set_mode(dimensiones)
 pygame.display.set_caption("Monifence")
 
@@ -95,20 +103,54 @@ def posicion_mouse():
     pos = pygame.mouse.get_pos()
     xm=int(pos[-2])
     ym=int(pos[-1])
-    print ("mouse:",pos)
+    #print ("mouse:",pos)
+
+def comunicacion_tcp():
+    data=""
+    tcpSerSock = socket(AF_INET, SOCK_STREAM)#Inicialización
+    tcpSerSock.bind(ADDR)
+    tcpSerSock.settimeout(0.3)
+    try:
+        tcpSerSock.listen()# Puerto de escucha
+        tcpCliSock, addr = tcpSerSock.accept()
+        #print('connected from:{}'.format(addr))
+        data = tcpCliSock.recv(BUFSIZ).decode()
+        ip=addr[0]
+        #print(ip)
+        mensaje="ok"
+        tcpCliSock.send(mensaje.encode())
+        tcpCliSock.close()
+    except:
+        pass
+    return data
+
+
 
 
 def main():
+
     global botones, zonas, panels
     pantalla.fill(NEGRO)
     game_over = False
     clock = pygame.time.Clock()
-    cz1=VERDE
-    cz2=VERDE
+    c_cerca_1=AMARILLO
+    c_cerca_2=AMARILLO
+    c_cerca_3=AMARILLO
+    c_cerca_4=AMARILLO
+    c_cerca_5=AMARILLO
+    c_cerca_6=AMARILLO
+    c_cerca_7=AMARILLO
+    c_cerca_8=AMARILLO
+    c_cerca_9=AMARILLO
+    c_cerca_10=AMARILLO
+    c_cerca_11=AMARILLO
+    c_cerca_12=AMARILLO
+    c_cerca_13=AMARILLO
+
     selected="Selecionar zona"
 
 ###############             MAPA
-    rect_mapa.topleft = [200,150]
+    rect_mapa.topleft = [180,150]
     pantalla.blit(mapa, rect_mapa)
 
 ###############            PANEL
@@ -119,7 +161,7 @@ def main():
     rect_batt_f.topleft = [10,350]
 
     panels = []
-    panels.append({'texto_ok': "Con señal",'texto_f': "Sin señal",'imagen_ok': signal_on, 'imagen_f': signal_off, 'rect': rect_signal_on,'on_click': False})
+    panels.append({'texto_ok': "",'texto_f': "",'imagen_ok': signal_on, 'imagen_f': signal_off, 'rect': rect_signal_on,'on_click': False})
     panels.append({'texto_ok': "Sin alarma",'texto_f': "En alarma",'imagen_ok': alarm_off, 'imagen_f': alarm_on, 'rect': rect_alarm_off,'on_click': False})
     panels.append({'texto_ok': "Armado",'texto_f': "Desarmado",'imagen_ok': armed, 'imagen_f': disarmed, 'rect': rect_armed,'on_click': False})
     panels.append({'texto_ok': "Energizado",'texto_f': "Desenergizado",'imagen_ok': ener_on, 'imagen_f': ener_off, 'rect': rect_ener_on,'on_click': False})
@@ -134,29 +176,59 @@ def main():
     botones.append({'texto': "Estadísticas", 'imagen': stats_bu, 'imagen_pressed': stats_bp, 'rect': rect_stats_bu,'on_click': False})
 
 ###############            ZONAS
-    rect_zona1_bu.topleft = [800,530]
-    rect_zona2_bu.topleft = [930,410]
-    rect_zona3_bu.topleft = [840,300]
-    rect_zona4_bu.topleft = [710,250]
-    rect_zona5_bu.topleft = [630,180]
-    rect_zona6_bu.topleft = [500,160]
-    rect_zona7_bu.topleft = [330,160]
-    rect_zona8_bu.topleft = [200,200]
-    rect_zona9_bu.topleft = [170,350]
+
+    rect_zona3_bu.topleft = [347,198]
+    rect_zona2_bu.topleft = [263,299]
+    rect_zona1_bu.topleft = [230,420]
     zonas = []
     zonas.append({'texto': "Zona 1", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona1_bu,'on_click': False})
     zonas.append({'texto': "Zona 2", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona2_bu,'on_click': False})
     zonas.append({'texto': "Zona 3", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona3_bu,'on_click': False})
-    zonas.append({'texto': "Zona 4", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona4_bu,'on_click': False})
-    zonas.append({'texto': "Zona 5", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona5_bu,'on_click': False})
-    zonas.append({'texto': "Zona 6", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona6_bu,'on_click': False})
-    zonas.append({'texto': "Zona 7", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona7_bu,'on_click': False})
-    zonas.append({'texto': "Zona 8", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona8_bu,'on_click': False})
-    zonas.append({'texto': "Zona 9", 'imagen': zona_bu, 'imagen_pressed': zona_bp, 'rect': rect_zona9_bu,'on_click': False})
 
+    alarma_z1=False
+    estado_comu_z1=True
 
 
     while not game_over:
+        estado_comu_z1=True
+        #alarma_z1=False
+        datos=comunicacion_tcp()
+        if len(datos)>0:
+            print(datos)
+            indice_a = datos.index('+')
+            indice_b = datos.index('*')
+            dispositivo= datos[0:indice_a]
+            estado = datos[indice_a+1:indice_b]
+            cerca = datos[indice_b+1:len(datos)]
+            #print(dispositivo)
+            #print(estado)
+            #print(cerca)
+            cerca_array=list(cerca)
+            #print(cerca_array)
+            if(dispositivo=="Rpi1"):
+                estado_comu_z1=False
+                if estado=="on":
+                    alarma_z1=True
+                    if cerca_array[0]== "1":
+                        c_cerca_1=ROJO
+                    if cerca_array[1]== "1":
+                        c_cerca_2=ROJO
+                    if cerca_array[2]== "1":
+                        c_cerca_3=ROJO
+                    if cerca_array[3]== "1":
+                        c_cerca_4=ROJO
+                    if cerca_array[4]== "1":
+                        c_cerca_5=ROJO
+
+
+                elif estado== "off":
+                    alarma_z1=False
+
+
+
+
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -174,55 +246,108 @@ def main():
         rect_mapa.topleft = [200,200]
         pygame.draw.rect(pantalla,GRIS,[0,0,1024,100],0) #Fondo superior
         pygame.draw.rect(pantalla,GRIS,[0,110,150,600],0) #Fondo inzquierda
-        pygame.draw.lines(pantalla,cz1,False,[(797, 504),(837, 520),(848, 509),(836, 492),(824, 478),(805, 466),(808, 451),(808, 451),(820, 444),(834, 459),(857, 463),(870, 463),(883, 469),(881, 485),(892, 489)], 8) #Zona 1
-        pygame.draw.lines(pantalla,cz2,False,[(894, 489),(909, 485),(917, 468),(918, 449),(918, 430),(916, 413),(902, 409),(886, 403),(885, 394),(888, 387),(897, 376),(913, 369),(928, 368),(931, 358)], 8) #Zona 2
+        pygame.draw.rect(pantalla,GRIS,[670,110,150,600],0) #Fondo derecho
+        pygame.draw.lines(pantalla,c_cerca_1,False,[(344,470),(347,449)], 8)  #cerca1
+        pygame.draw.lines(pantalla,c_cerca_2,False,[(347,449),(350,428)], 8)  #cerca2
+        pygame.draw.lines(pantalla,c_cerca_3,False,[(350,428),(357,407)], 8)  #cerca3
+        pygame.draw.lines(pantalla,c_cerca_4,False,[(357,407),(363,386)], 8)  #cerca4
+        pygame.draw.lines(pantalla,c_cerca_5,False,[(363,386),(368,365)], 8)  #cerca5
+        pygame.draw.lines(pantalla,c_cerca_6,False,[(368,365),(375,344)], 8)  #cerca6
+        pygame.draw.lines(pantalla,c_cerca_7,False,[(375,344),(385,323)], 8)  #cerca7
+        pygame.draw.lines(pantalla,c_cerca_8,False,[(385,323),(395,302)], 8)  #cerca8
+        pygame.draw.lines(pantalla,c_cerca_9,False,[(395,302),(420,281)], 8)  #cerca9
+        pygame.draw.lines(pantalla,c_cerca_10,False,[(420,281),(445,260)], 8)  #cerca10
+        pygame.draw.lines(pantalla,c_cerca_11,False,[(445,260),(471,239)], 8)  #cerca11
+        pygame.draw.lines(pantalla,c_cerca_12,False,[(471,239),(472,218)], 8)  #cerca12
+        pygame.draw.lines(pantalla,c_cerca_13,False,[(472,218),(472,197)], 8)  #cerca13
         texto=font_c.render(selected,1,BLANCO)
         pantalla.blit(texto,[20,110])
 
+
         if zonas[0]['on_click']:
             selected="Zona 1"
-            cz1=ROJO
-            panels[0]["on_click"]=True
-            panels[1]["on_click"]=True
+            c_cerca_1=VERDE
+            c_cerca_2=VERDE
+            c_cerca_3=VERDE
+            c_cerca_4=VERDE
+            c_cerca_5=VERDE
+            c_cerca_6=AMARILLO
+            c_cerca_7=AMARILLO
+            c_cerca_8=AMARILLO
+            c_cerca_9=AMARILLO
+            c_cerca_10=AMARILLO
+            c_cerca_11=AMARILLO
+            c_cerca_12=AMARILLO
+            c_cerca_13=AMARILLO
+            panels[0]["on_click"]=estado_comu_z1
+            panels[1]["on_click"]=alarma_z1
             panels[2]["on_click"]=False
-            panels[3]["on_click"]=True
+            panels[3]["on_click"]=False
             panels[4]["on_click"]=False
             crear_panel(panels,selected)
-        if zonas[1]['on_click']:
+        elif zonas[1]['on_click']:
             selected="Zona 2"
-            cz2=ROJO
-            panels[0]["on_click"]=True
-            panels[1]["on_click"]=False
-            panels[2]["on_click"]=False
-            panels[3]["on_click"]=True
-            panels[4]["on_click"]=True
-            crear_panel(panels,selected)
-
-        if zonas[2]['on_click']:
-            selected="Zona 3"
-            cz2=ROJO
+            c_cerca_1=AMARILLO
+            c_cerca_2=AMARILLO
+            c_cerca_3=AMARILLO
+            c_cerca_4=AMARILLO
+            c_cerca_5=AMARILLO
+            c_cerca_6=VERDE
+            c_cerca_7=VERDE
+            c_cerca_8=VERDE
+            c_cerca_9=VERDE
+            c_cerca_10=AMARILLO
+            c_cerca_11=AMARILLO
+            c_cerca_12=AMARILLO
+            c_cerca_13=AMARILLO
             panels[0]["on_click"]=False
             panels[1]["on_click"]=False
             panels[2]["on_click"]=False
             panels[3]["on_click"]=False
             panels[4]["on_click"]=False
             crear_panel(panels,selected)
-
-        if zonas[3]['on_click']:
-            selected="Zona 4"
-            cz2=ROJO
-            panels[0]["on_click"]=True
-            panels[1]["on_click"]=True
-            panels[2]["on_click"]=True
-            panels[3]["on_click"]=True
-            panels[4]["on_click"]=True
+        elif zonas[2]['on_click']:
+            selected="Zona 3"
+            c_cerca_1=AMARILLO
+            c_cerca_2=AMARILLO
+            c_cerca_3=AMARILLO
+            c_cerca_4=AMARILLO
+            c_cerca_5=AMARILLO
+            c_cerca_6=AMARILLO
+            c_cerca_7=AMARILLO
+            c_cerca_8=AMARILLO
+            c_cerca_9=AMARILLO
+            c_cerca_10=VERDE
+            c_cerca_11=VERDE
+            c_cerca_12=VERDE
+            c_cerca_13=VERDE
+            panels[0]["on_click"]=False
+            panels[1]["on_click"]=False
+            panels[2]["on_click"]=False
+            panels[3]["on_click"]=False
+            panels[4]["on_click"]=False
             crear_panel(panels,selected)
-
+        else:
+            c_cerca_1=AMARILLO
+            c_cerca_2=AMARILLO
+            c_cerca_3=AMARILLO
+            c_cerca_4=AMARILLO
+            c_cerca_5=AMARILLO
+            c_cerca_6=AMARILLO
+            c_cerca_7=AMARILLO
+            c_cerca_8=AMARILLO
+            c_cerca_9=AMARILLO
+            c_cerca_10=AMARILLO
+            c_cerca_11=AMARILLO
+            c_cerca_12=AMARILLO
+            c_cerca_13=AMARILLO
+            selected="Seleccionar Zona"
         crear_boton(botones)
         crear_zona(zonas)
-        # crear_panel(panels,selected)
+        #crear_panel(panels,selected)
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(0)
+
     pygame.quit()
 
 if __name__ == '__main__':
