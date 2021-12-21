@@ -1,7 +1,6 @@
 import pygame,sys
 import time
 from pygame.locals import *
-from ENVIO_ALEATORIO import *
 from socket import *
 
 import threading
