@@ -1,17 +1,7 @@
 import pygame,sys
 import time
 from pygame.locals import *
-from socket import *
-
-import threading
-from threading import *
-#########################################################
-#############CONFIGURACION TCP/IP########################
-HOST = ''
-PORT = 8050
-BUFSIZ = 1024
-ADDR = (HOST, PORT)
-
+from modulo_comunicacion import comunicacion_tcp as comu
 
 #########################################################
 NEGRO = (0, 0, 0)
@@ -104,27 +94,6 @@ def posicion_mouse():
     ym=int(pos[-1])
     #print ("mouse:",pos)
 
-def comunicacion_tcp():
-    data=""
-    tcpSerSock = socket(AF_INET, SOCK_STREAM)#Inicialización
-    tcpSerSock.bind(ADDR)
-    tcpSerSock.settimeout(0.3)
-    try:
-        tcpSerSock.listen()# Puerto de escucha
-        tcpCliSock, addr = tcpSerSock.accept()
-        #print('connected from:{}'.format(addr))
-        data = tcpCliSock.recv(BUFSIZ).decode()
-        ip=addr[0]
-        #print(ip)
-        mensaje="ok"
-        tcpCliSock.send(mensaje.encode())
-        tcpCliSock.close()
-    except:
-        pass
-    return data
-
-
-
 
 def main():
 
@@ -186,14 +155,20 @@ def main():
 
     alarma_z1=False
     estado_comu_z1=True
-
+    alarma_z2=False
+    estado_comu_z2=True
+    alarma_z3=False
+    estado_comu_z3=True
 
     while not game_over:
+
         estado_comu_z1=True
+        estado_comu_z2=True
+        estado_comu_z3=True
         #alarma_z1=False
-        datos=comunicacion_tcp()
+        datos=comu()
         if len(datos)>0:
-            print(datos)
+            #print(datos)
             indice_a = datos.index('+')
             indice_b = datos.index('*')
             dispositivo= datos[0:indice_a]
@@ -204,6 +179,7 @@ def main():
             #print(cerca)
             cerca_array=list(cerca)
             #print(cerca_array)
+# ################################rpi1#############################
             if(dispositivo=="Rpi1"):
                 estado_comu_z1=False
                 if estado=="on":
@@ -218,14 +194,43 @@ def main():
                         c_cerca_4=ROJO
                     if cerca_array[4]== "1":
                         c_cerca_5=ROJO
-
-
                 elif estado== "off":
                     alarma_z1=False
+#####################################################################
 
+################################rpi2#############################
+            if(dispositivo=="Rpi2"):
+                estado_comu_z2=False
+                if estado=="on":
+                    alarma_z2=True
+                    if cerca_array[0]== "1":
+                        c_cerca_6=ROJO
+                    if cerca_array[1]== "1":
+                        c_cerca_7=ROJO
+                    if cerca_array[2]== "1":
+                        c_cerca_8=ROJO
+                    if cerca_array[3]== "1":
+                        c_cerca_9=ROJO
+                elif estado== "off":
+                    alarma_z2=False
+#####################################################################
 
-
-
+################################rpi2#############################
+            if(dispositivo=="Rpi3"):
+                estado_comu_z3=False
+                if estado=="on":
+                    alarma_z3=True
+                    if cerca_array[0]== "1":
+                        c_cerca_10=ROJO
+                    if cerca_array[1]== "1":
+                        c_cerca_11=ROJO
+                    if cerca_array[2]== "1":
+                        c_cerca_12=ROJO
+                    if cerca_array[3]== "1":
+                        c_cerca_13=ROJO
+                elif estado== "off":
+                    alarma_z3=False
+####################################################################
 
 
         for event in pygame.event.get():
@@ -299,8 +304,8 @@ def main():
             c_cerca_11=AMARILLO
             c_cerca_12=AMARILLO
             c_cerca_13=AMARILLO
-            panels[0]["on_click"]=False
-            panels[1]["on_click"]=False
+            panels[0]["on_click"]=estado_comu_z2
+            panels[1]["on_click"]=alarma_z2
             panels[2]["on_click"]=False
             panels[3]["on_click"]=False
             panels[4]["on_click"]=False
@@ -320,8 +325,8 @@ def main():
             c_cerca_11=VERDE
             c_cerca_12=VERDE
             c_cerca_13=VERDE
-            panels[0]["on_click"]=False
-            panels[1]["on_click"]=False
+            panels[0]["on_click"]=estado_comu_z3
+            panels[1]["on_click"]=alarma_z3
             panels[2]["on_click"]=False
             panels[3]["on_click"]=False
             panels[4]["on_click"]=False
