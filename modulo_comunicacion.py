@@ -3,7 +3,7 @@ from socket import *
 
 HOST = ''
 PORT = 9000
-BUFSIZ = 1024
+BUFSIZ = 16
 ADDR = (HOST, PORT)
 
 def comunicacion_tcp():
@@ -11,7 +11,7 @@ def comunicacion_tcp():
 
     tcpSerSock = socket(AF_INET, SOCK_STREAM)#Inicialización
     tcpSerSock.bind(ADDR)
-    tcpSerSock.settimeout(0.2)
+    tcpSerSock.settimeout(0.3)
 
     try:
         tcpSerSock.listen()# Puerto de escucha
@@ -27,3 +27,7 @@ def comunicacion_tcp():
     except:
         pass
     return data
+# while True:
+#     mensaje= comunicacion_tcp()
+#     if len(mensaje)>0:
+#         print(mensaje)
