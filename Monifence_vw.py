@@ -1,7 +1,8 @@
 import pygame,sys
 import time
 from pygame.locals import *
-from modulo_comunicacion import comunicacion_tcp as comu
+
+from modulo_comunicacion import comunicacion_tcp_3 as comu_3
 from reportes_activacion import reporte as report
 #########################################################
 NEGRO = (0, 0, 0)
@@ -192,125 +193,158 @@ def main():
     estado_anterior_n1="00000"
     estado_anterior_n2="00000"
     estado_anterior_n3="00000"
-    while not game_over:
 
+
+    while not game_over:
+        dispositivo_1=""
+        dispositivo_2=""
+        dispositivo_3=""
         estado_comu_z1=True
         estado_comu_z2=True
         estado_comu_z3=True
 
-        datos=comu()
+        datos_1=comu_3(9001)
+        datos_2=comu_3(9002)
+        datos_3=comu_3(9003)
 
-        if len(datos)>0:
+        if len(datos_1)>0:
             #print(datos)
-            indice_a = datos.index('+')
-            indice_b = datos.index('*')
-            dispositivo= datos[0:indice_a]
-            estado = datos[indice_a+1:indice_b]
-            cerca = datos[indice_b+1:len(datos)]
+            indice_a = datos_1.index('+')
+            indice_b = datos_1.index('*')
+            dispositivo_1= datos_1[0:indice_a]
+            estado_1 = datos_1[indice_a+1:indice_b]
+            cerca_1 = datos_1[indice_b+1:len(datos_1)]
             #print(dispositivo)
             #print(estado)
             #print(cerca)
-            cerca_array=list(cerca)
+            cerca_array_1=list(cerca_1)
+            #print(cerca_array)
+
+        if len(datos_2)>0:
+            #print(datos)
+            indice_a = datos_2.index('+')
+            indice_b = datos_2.index('*')
+            dispositivo_2= datos_2[0:indice_a]
+            estado_2 = datos_2[indice_a+1:indice_b]
+            cerca_2 = datos_2[indice_b+1:len(datos_2)]
+            #print(dispositivo)
+            #print(estado)
+            #print(cerca)
+            cerca_array_2=list(cerca_2)
+            #print(cerca_array)
+
+        if len(datos_3)>0:
+            #print(datos)
+            indice_a_3 = datos_3.index('+')
+            indice_b_3 = datos_3.index('*')
+            dispositivo_3= datos_3[0:indice_a_3]
+            estado_3 = datos_3[indice_a_3+1:indice_b_3]
+            cerca_3 = datos_3[indice_b_3+1:len(datos_3)]
+            #print(dispositivo)
+            #print(estado)
+            #print(cerca)
+            cerca_array_3=list(cerca_3)
             #print(cerca_array)
 # ################################rpi1#############################
-            if(dispositivo=="Rpi1"):
-                estado_actual_n1=cerca
-                estado_comu_z1=False
-                if estado=="on":
-                    alarma_z1=True
-                    try:
-                        if estado_anterior_n1 != estado_actual_n1:
-                            report(dispositivo,estado_actual_n1)
-                            estado_anterior_n1=estado_actual_n1
-                    except:
-                        print("archivo reporte abierto")
-                elif estado== "off":
-                    alarma_z1=False
-                if cerca_array[0]== "1":
-                    estado_c1=True
-                elif cerca_array[0]=="0":
-                    estado_c1=False
-                if cerca_array[1]== "1":
-                    estado_c2=True
-                elif cerca_array[1]=="0":
-                    estado_c2=False
-                if cerca_array[2]== "1":
-                    estado_c3=True
-                elif cerca_array[2]=="0":
-                    estado_c3=False
-                if cerca_array[3]== "1":
-                    estado_c4=True
-                elif cerca_array[3]=="0":
-                    estado_c4=False
-                if cerca_array[4]== "1":
-                    estado_c5=True
-                elif cerca_array[4]=="0":
-                    estado_c5=False
+
+        if(dispositivo_1=="Rpi1"):
+            estado_actual_n1=cerca_1
+            estado_comu_z1=False
+            if estado_1=="on":
+                alarma_z1=True
+                try:
+                    if estado_anterior_n1 != estado_actual_n1:
+                        report(dispositivo_1,estado_actual_n1)
+                        estado_anterior_n1=estado_actual_n1
+                except:
+                    print("archivo reporte abierto")
+            elif estado_1== "off":
+                alarma_z1=False
+            if cerca_array_1[0]== "1":
+                estado_c1=True
+            elif cerca_array_1[0]=="0":
+                estado_c1=False
+            if cerca_array_1[1]== "1":
+                estado_c2=True
+            elif cerca_array_1[1]=="0":
+                estado_c2=False
+            if cerca_array_1[2]== "1":
+                estado_c3=True
+            elif cerca_array_1[2]=="0":
+                estado_c3=False
+            if cerca_array_1[3]== "1":
+                estado_c4=True
+            elif cerca_array_1[3]=="0":
+                estado_c4=False
+            if cerca_array_1[4]== "1":
+                estado_c5=True
+            elif cerca_array_1[4]=="0":
+                estado_c5=False
 
 #####################################################################
 
 ################################rpi2#############################
-            if(dispositivo=="Rpi2"):
-                estado_actual_n2=cerca
-                estado_comu_z2=False
-                if estado=="on":
-                    alarma_z2=True
-                    try:
-                        if estado_anterior_n2 != estado_actual_n2:
-                            report(dispositivo,estado_actual_n2)
-                            estado_anterior_n2=estado_actual_n2
-                    except:
-                        print("archivo reporte abierto")
-                elif estado== "off":
-                    alarma_z2=False
-                if cerca_array[0]== "1":
-                    estado_c6=True
-                elif cerca_array[0]=="0":
-                    estado_c6=False
-                if cerca_array[1]== "1":
-                    estado_c7=True
-                elif cerca_array[1]=="0":
-                    estado_c7=False
-                if cerca_array[2]== "1":
-                    estado_c8=True
-                elif cerca_array[2]=="0":
-                    estado_c8=False
-                if cerca_array[3]== "1":
-                    estado_c9=True
-                elif cerca_array[3]=="0":
-                    estado_c9=False
+        if(dispositivo_2=="Rpi2"):
+            estado_actual_n2=cerca_2
+            estado_comu_z2=False
+            if estado_2=="on":
+                alarma_z2=True
+                try:
+                    if estado_anterior_n2 != estado_actual_n2:
+                        report(dispositivo_2,estado_actual_n2)
+                        estado_anterior_n2=estado_actual_n2
+                except:
+                    print("archivo reporte abierto")
+            elif estado_2== "off":
+                alarma_z2=False
+            if cerca_array_2[0]== "1":
+                estado_c6=True
+            elif cerca_array_2[0]=="0":
+                estado_c6=False
+            if cerca_array_2[1]== "1":
+                estado_c7=True
+            elif cerca_array_2[1]=="0":
+                estado_c7=False
+            if cerca_array_2[2]== "1":
+                estado_c8=True
+            elif cerca_array_2[2]=="0":
+                estado_c8=False
+            if cerca_array_2[3]== "1":
+                estado_c9=True
+            elif cerca_array_2[3]=="0":
+                estado_c9=False
 #####################################################################
 
 ################################rpi2#############################
-            if(dispositivo=="Rpi3"):
-                estado_comu_z3=False
-                estado_actual_n3=cerca
-                if estado=="on":
-                    alarma_z3=True
-                    try:
-                        if estado_anterior_n3 != estado_actual_n3:
-                            report(dispositivo,estado_actual_n3)
-                            estado_anterior_n3=estado_actual_n3
-                    except:
-                        print("archivo reporte abierto")
-                elif estado== "off":
-                    alarma_z3=False
-                if cerca_array[0]== "1":
-                    estado_c10=True
-                elif cerca_array[0]=="0":
-                    estado_c10=False
-                if cerca_array[1]== "1":
-                    estado_c11=True
-                elif cerca_array[1]=="0":
-                    estado_c11=False
-                if cerca_array[2]== "1":
-                    estado_c12=True
-                elif cerca_array[2]=="0":
-                    estado_c12=False
-                if cerca_array[3]== "1":
-                    estado_c13=True
-                elif cerca_array[3]=="0":
-                    estado_c13=False
+        if(dispositivo_3=="Rpi3"):
+            estado_comu_z3=False
+            estado_actual_n3=cerca_3
+            if estado_3=="on":
+                alarma_z3=True
+                try:
+                    if estado_anterior_n3 != estado_actual_n3:
+                        report(dispositivo_3,estado_actual_n3)
+                        estado_anterior_n3=estado_actual_n3
+                except:
+                    print("archivo reporte abierto")
+            elif estado_3== "off":
+                alarma_z3=False
+            if cerca_array_3[0]== "1":
+                estado_c10=True
+            elif cerca_array_3[0]=="0":
+                estado_c10=False
+            if cerca_array_3[1]== "1":
+                estado_c11=True
+            elif cerca_array_3[1]=="0":
+                estado_c11=False
+            if cerca_array_3[2]== "1":
+                estado_c12=True
+            elif cerca_array_3[2]=="0":
+                estado_c12=False
+            if cerca_array_3[3]== "1":
+                estado_c13=True
+            elif cerca_array_3[3]=="0":
+                estado_c13=False
 ####################################################################
 
 
